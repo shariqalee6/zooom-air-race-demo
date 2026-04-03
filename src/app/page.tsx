@@ -1,6 +1,7 @@
 "use client";
 
 import { useEvents } from "../hooks/useEvents";
+import { EventList } from "../components/EventList";
 
 export default function Home() {
   const { events, loading, error } = useEvents();
@@ -22,22 +23,7 @@ export default function Home() {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          {!loading && !error && (
-            <div className="space-y-4">
-              {events.map((event) => (
-                <div key={event.id} className="rounded-lg border p-4 shadow-sm">
-                  <h2 className="text-lg font-medium">{event.title}</h2>
-                  <p className="text-sm text-gray-600">{event.description}</p>
-                  <p className="mt-2 text-xs text-gray-500">
-                    {event.address}, {event.country}
-                  </p>
-                  <p className="mt-2 text-xs font-semibold">
-                    Category: {event.category}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
+          {!loading && !error && <EventList events={events} />}
         </div>
       </section>
     </main>
