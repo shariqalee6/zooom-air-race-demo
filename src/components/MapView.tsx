@@ -3,7 +3,7 @@
 import L from "leaflet";
 import { useEffect, useMemo } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import { EventItem } from "../lib/types";
+import { EventCategory, EventItem } from "../lib/types";
 
 type MapViewProps = {
   events: EventItem[];
@@ -14,7 +14,7 @@ type MapViewProps = {
 };
 
 function createMarkerIcon(
-  category: "A" | "B",
+  category: EventCategory,
   state: "default" | "active" | "hovered",
 ) {
   const background =
@@ -22,7 +22,7 @@ function createMarkerIcon(
       ? "#111827"
       : state === "hovered"
         ? "#6b7280"
-        : category === "A"
+        : category === "Championship"
           ? "#ffffff"
           : "#d1d5db";
 
@@ -61,6 +61,41 @@ function MapController({ selected }: { selected?: EventItem }) {
   return null;
 }
 
+function FitBoundsController({
+  events,
+  selectedId,
+}: {
+  events: EventItem[];
+  selectedId: string | null;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectedId || events.length === 0) {
+      return;
+    }
+
+    if (events.length === 1) {
+      map.setView([events[0].coordinates.lat, events[0].coordinates.lng], 4, {
+        animate: true,
+      });
+      return;
+    }
+
+    const bounds = L.latLngBounds(
+      events.map((event) => [event.coordinates.lat, event.coordinates.lng]),
+    );
+
+    map.fitBounds(bounds, {
+      padding: [40, 40],
+      maxZoom: 4,
+      animate: true,
+    });
+  }, [events, selectedId, map]);
+
+  return null;
+}
+
 export default function MapView({
   events,
   selectedId,
@@ -75,10 +110,8 @@ export default function MapView({
   }, [events]);
 
   const selectedEvent = events.find((event) => event.id === selectedId);
-  const hoverEvent = events.find((event) => event.id === hoveredId);
-
   return (
-    <div className="h-[520px] overflow-hidden rounded-2xl border bg-white shadow-sm">
+    <div className="h-[460px] overflow-hidden rounded-2xl border bg-white shadow-sm">
       <MapContainer
         center={center}
         zoom={2}
@@ -90,7 +123,8 @@ export default function MapView({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <MapController selected={selectedEvent ?? hoverEvent} />
+        <FitBoundsController events={events} selectedId={selectedId} />
+        <MapController selected={selectedEvent} />
 
         {events.map((event) => {
           const isActive = selectedId === event.id;

@@ -19,13 +19,22 @@ export function EventCard({
 }: EventCardProps) {
   return (
     <article
+      role="button"
+      tabIndex={0}
+      aria-pressed={isActive}
       onClick={() => onClick?.(event)}
       onMouseEnter={() => onMouseEnter?.(event)}
       onMouseLeave={onMouseLeave}
+      onKeyDown={(keyboardEvent) => {
+        if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+          keyboardEvent.preventDefault();
+          onClick?.(event);
+        }
+      }}
       className={`cursor-pointer rounded-2xl border p-4 shadow-sm transition duration-200
         ${isActive ? "border-black bg-black/5" : "border-gray-200 bg-white"}
         ${isHovered ? "ring-2 ring-black/20" : ""}
-        hover:border-black hover:shadow-md`}
+        hover:border-black hover:shadow-md focus:outline-none focus:ring-2 focus:ring-black/20`}
     >
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-lg font-medium text-gray-900">{event.title}</h2>

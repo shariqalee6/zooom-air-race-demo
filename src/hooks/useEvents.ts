@@ -4,35 +4,49 @@ import { useEffect, useState } from "react";
 import { EventItem } from "../lib/types";
 
 type EventsResponse = {
-    events: EventItem[];
+  events: EventItem[];
 };
 
 export function useEvents() {
-    const [events, setEvents] = useState<EventItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        async function fetchEvents() {
-            try {
-                setLoading(true);
-                const response = await fetch("/api/events");
+  useEffect(() => {
+    const abortController = new AbortController();
 
-                if (!response.ok) {
-                    throw new Error("Request failed");
-                }
+    async function fetchEvents() {
+      try {
+        setLoading(true);
+        setError(null);
 
-                const data: EventsResponse = await response.json();
-                setEvents(data.events);
-            } catch {
-                setError("Failed to load events");
-            } finally {
-                setLoading(false);
-            }
+        const response = await fetch("/api/events", {
+          signal: abortController.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error("Request failed");
         }
 
-        fetchEvents();
-    }, []);
+        const data: EventsResponse = await response.json();
+        setEvents(data.events);
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setError("Failed to load events");
+        }
+      } finally {
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
 
-    return { events, loading, error };
+    fetchEvents();
+
+    return () => {
+      abortController.abort();
+    };
+  }, []);
+
+  return { events, loading, error };
 }

@@ -7,14 +7,14 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
   return (
     <div className="w-full max-w-md">
       <label className="mb-2 block text-sm font-medium text-gray-700">
-        Search location
+        Filter events
       </label>
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Search by city, address or country"
-        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm outline-none transition focus:border-black"
+        placeholder="Search by title, description, address or country"
+        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
       />
     </div>
   );

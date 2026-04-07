@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { EventItem } from "../lib/types";
 import { EventCard } from "./EventCard";
 
@@ -16,6 +17,17 @@ export function EventList({
   onSelect,
   onHover,
 }: EventListProps) {
+  const selectedCardRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (selectedCardRef.current) {
+      selectedCardRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [selectedId]);
+
   if (events.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed bg-white p-6 text-sm text-gray-500">
@@ -25,18 +37,24 @@ export function EventList({
   }
 
   return (
-    <div className="space-y-4">
-      {events.map((event) => (
-        <EventCard
-          key={event.id}
-          event={event}
-          isActive={selectedId === event.id}
-          isHovered={hoveredId === event.id}
-          onClick={onSelect}
-          onMouseEnter={onHover}
-          onMouseLeave={() => onHover(null)}
-        />
-      ))}
+    <div className="rounded-2xl border bg-white p-3 shadow-sm lg:h-[460px] lg:overflow-y-auto">
+      <div className="space-y-3">
+        {events.map((event) => (
+          <div
+            key={event.id}
+            ref={selectedId === event.id ? selectedCardRef : null}
+          >
+            <EventCard
+              event={event}
+              isActive={selectedId === event.id}
+              isHovered={hoveredId === event.id}
+              onClick={onSelect}
+              onMouseEnter={onHover}
+              onMouseLeave={() => onHover(null)}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

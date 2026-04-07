@@ -6,10 +6,8 @@ import { useEvents } from "../hooks/useEvents";
 import { EventList } from "../components/EventList";
 import { CategoryFilter } from "../components/CategoryFilter";
 import { SearchBar } from "../components/SearchBar";
-import { EventItem } from "../lib/types";
+import { EventFilterCategory, EventItem } from "../lib/types";
 import { filterEvents } from "../lib/eventFilters";
-
-type Category = "ALL" | "A" | "B";
 
 const MapView = dynamic(() => import("../components/MapView"), {
   ssr: false,
@@ -17,7 +15,8 @@ const MapView = dynamic(() => import("../components/MapView"), {
 
 export default function Home() {
   const { events, loading, error } = useEvents();
-  const [activeCategory, setActiveCategory] = useState<Category>("ALL");
+  const [activeCategory, setActiveCategory] =
+    useState<EventFilterCategory>("ALL");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,6 +24,13 @@ export default function Home() {
   const filteredEvents = useMemo(() => {
     return filterEvents(events, activeCategory, searchQuery);
   }, [events, activeCategory, searchQuery]);
+  const isReady = !loading && !error;
+  const hasVisibleEvents = filteredEvents.length > 0;
+
+  function clearInteractionState() {
+    setSelectedId(null);
+    setHoveredId(null);
+  }
 
   function handleSelect(event: EventItem) {
     setSelectedId(event.id);
@@ -32,6 +38,16 @@ export default function Home() {
 
   function handleHover(event: EventItem | null) {
     setHoveredId(event ? event.id : null);
+  }
+
+  function handleCategoryChange(category: EventFilterCategory) {
+    setActiveCategory(category);
+    clearInteractionState();
+  }
+
+  function handleSearchChange(value: string) {
+    setSearchQuery(value);
+    clearInteractionState();
   }
 
   return (
@@ -57,25 +73,14 @@ export default function Home() {
         <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <CategoryFilter
             activeCategory={activeCategory}
-            onChange={(category) => {
-              setActiveCategory(category);
-              setSelectedId(null);
-              setHoveredId(null);
-            }}
+            onChange={handleCategoryChange}
           />
 
-          <SearchBar
-            value={searchQuery}
-            onChange={(value) => {
-              setSearchQuery(value);
-              setSelectedId(null);
-              setHoveredId(null);
-            }}
-          />
+          <SearchBar value={searchQuery} onChange={handleSearchChange} />
         </div>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
-          <div>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.9fr)] lg:items-start">
+          <div className="lg:sticky lg:top-6">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Map view
@@ -83,10 +88,16 @@ export default function Home() {
             </div>
 
             {loading && (
-              <p className="text-sm text-gray-500">Loading events...</p>
+              <p className="rounded-2xl border bg-white p-6 text-sm text-gray-500">
+                Loading events...
+              </p>
             )}
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            {!loading && !error && (
+            {error && (
+              <p className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+            {isReady && (
               <MapView
                 events={filteredEvents}
                 selectedId={selectedId}
@@ -97,14 +108,19 @@ export default function Home() {
             )}
           </div>
 
-          <div>
+          <div className="min-h-0">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Event list
               </h2>
+              {isReady && hasVisibleEvents && (
+                <span className="text-xs text-gray-500">
+                  Scroll to browse all events
+                </span>
+              )}
             </div>
 
-            {!loading && !error && (
+            {isReady && (
               <EventList
                 events={filteredEvents}
                 selectedId={selectedId}
