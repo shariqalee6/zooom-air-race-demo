@@ -35,15 +35,23 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <section className="mx-auto max-w-7xl">
-        <header>
-          <h1 className="text-3xl font-semibold tracking-tight">
+        <header className="rounded-2xl border bg-white p-6 shadow-sm">
+          <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
             Air Race Events Overview
           </h1>
           <p className="mt-2 text-sm text-gray-600">
             Explore global events through a structured list and map view.
           </p>
+
+          <div className="mt-4 text-sm text-gray-500">
+            Showing{" "}
+            <span className="font-semibold text-gray-900">
+              {filteredEvents.length}
+            </span>{" "}
+            event{filteredEvents.length !== 1 ? "s" : ""}
+          </div>
         </header>
 
         <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -68,6 +76,12 @@ export default function Home() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
           <div>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+                Map view
+              </h2>
+            </div>
+
             {loading && (
               <p className="text-sm text-gray-500">Loading events...</p>
             )}
@@ -84,6 +98,12 @@ export default function Home() {
           </div>
 
           <div>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+                Event list
+              </h2>
+            </div>
+
             {!loading && !error && (
               <EventList
                 events={filteredEvents}
