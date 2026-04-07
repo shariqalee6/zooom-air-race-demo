@@ -1,10 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useEvents } from "../hooks/useEvents";
 import { EventList } from "../components/EventList";
 import { CategoryFilter } from "../components/CategoryFilter";
+import { EventItem } from "../lib/types";
 
 type Category = "ALL" | "A" | "B";
 
@@ -15,11 +16,22 @@ const MapView = dynamic(() => import("../components/MapView"), {
 export default function Home() {
   const { events, loading, error } = useEvents();
   const [activeCategory, setActiveCategory] = useState<Category>("ALL");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const filteredEvents =
-    activeCategory === "ALL"
+  const filteredEvents = useMemo(() => {
+    return activeCategory === "ALL"
       ? events
       : events.filter((event) => event.category === activeCategory);
+  }, [events, activeCategory]);
+
+  function handleSelect(event: EventItem) {
+    setSelectedId(event.id);
+  }
+
+  function handleHover(event: EventItem | null) {
+    setHoveredId(event ? event.id : null);
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 p-6">
@@ -36,7 +48,11 @@ export default function Home() {
         <div className="mt-6">
           <CategoryFilter
             activeCategory={activeCategory}
-            onChange={setActiveCategory}
+            onChange={(category) => {
+              setActiveCategory(category);
+              setSelectedId(null);
+              setHoveredId(null);
+            }}
           />
         </div>
 
@@ -45,14 +61,28 @@ export default function Home() {
             {loading && (
               <p className="text-sm text-gray-500">Loading events...</p>
             )}
-
             {error && <p className="text-sm text-red-600">{error}</p>}
-
-            {!loading && !error && <MapView events={filteredEvents} />}
+            {!loading && !error && (
+              <MapView
+                events={filteredEvents}
+                selectedId={selectedId}
+                hoveredId={hoveredId}
+                onSelect={handleSelect}
+                onHover={handleHover}
+              />
+            )}
           </div>
 
           <div>
-            {!loading && !error && <EventList events={filteredEvents} />}
+            {!loading && !error && (
+              <EventList
+                events={filteredEvents}
+                selectedId={selectedId}
+                hoveredId={hoveredId}
+                onSelect={handleSelect}
+                onHover={handleHover}
+              />
+            )}
           </div>
         </div>
       </section>
