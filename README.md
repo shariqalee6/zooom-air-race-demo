@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zooom Air Race Demo
 
-## Getting Started
+A small web application for exploring international air race events through a synchronized map and list view. The goal of the project is to keep the implementation clear, maintainable, and close to the assignment brief while still reflecting how this feature could evolve in a real content-driven product.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+For a production build:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+## Project Overview
 
-To learn more about Next.js, take a look at the following resources:
+- Interactive map with one marker per event
+- Structured event list shown beside the map
+- Hover sync between list items and markers
+- Click selection that recenters the map on the chosen event
+- Marker popup with title and description
+- Category filter for `Championship` and `Challenger`
+- Text filtering across title, description, address, and country
+- Loading, error, and empty states
+- A scrollable event panel so larger datasets remain usable without pushing the map out of view
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Approach
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The task only required a modern frontend framework, so I chose `Next.js` because it provides a solid React foundation, simple routing, a clean project structure, and the option to add server-side capabilities later without changing the overall architecture. For this assignment, it lets the solution stay small while still feeling close to a real application setup.
 
-## Deploy on Vercel
+The implementation is intentionally pragmatic:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `React Leaflet` is used for map rendering because it is lightweight, reliable, and easy to integrate into a React-based UI.
+- Event data is served through a small local API route instead of being hardcoded directly inside the page, which keeps the UI separate from the data source and makes a future CMS or backend integration straightforward.
+- Shared types in `src/lib/types.ts` keep the data model explicit and extendable.
+- Filtering logic lives in a dedicated utility so UI rendering and business logic stay separate.
+- Selection and hover state are managed in one place at the page level because both the list and the map depend on it. This keeps synchronization simple without introducing unnecessary global state.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+- `src/app` contains the page, layout, global styles, and API route
+- `src/components` contains presentational UI pieces such as the map, list, cards, and filters
+- `src/hooks` contains client-side data fetching logic
+- `src/lib` contains shared types, mock content, and filtering helpers
+
+## Scope
+
+This solution intentionally stays close to the assignment brief:
+
+- mocked event data instead of a full backend
+- simple but clean styling
+- focused interaction logic
+- small and maintainable component boundaries
+
+The goal was to make sensible technical choices without turning the task into a larger architecture exercise.
