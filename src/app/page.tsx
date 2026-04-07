@@ -5,7 +5,9 @@ import { useMemo, useState } from "react";
 import { useEvents } from "../hooks/useEvents";
 import { EventList } from "../components/EventList";
 import { CategoryFilter } from "../components/CategoryFilter";
+import { SearchBar } from "../components/SearchBar";
 import { EventItem } from "../lib/types";
+import { filterEvents } from "../lib/eventFilters";
 
 type Category = "ALL" | "A" | "B";
 
@@ -18,12 +20,11 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category>("ALL");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredEvents = useMemo(() => {
-    return activeCategory === "ALL"
-      ? events
-      : events.filter((event) => event.category === activeCategory);
-  }, [events, activeCategory]);
+    return filterEvents(events, activeCategory, searchQuery);
+  }, [events, activeCategory, searchQuery]);
 
   function handleSelect(event: EventItem) {
     setSelectedId(event.id);
@@ -45,11 +46,20 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <CategoryFilter
             activeCategory={activeCategory}
             onChange={(category) => {
               setActiveCategory(category);
+              setSelectedId(null);
+              setHoveredId(null);
+            }}
+          />
+
+          <SearchBar
+            value={searchQuery}
+            onChange={(value) => {
+              setSearchQuery(value);
               setSelectedId(null);
               setHoveredId(null);
             }}

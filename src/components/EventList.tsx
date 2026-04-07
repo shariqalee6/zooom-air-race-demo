@@ -19,7 +19,7 @@ export function EventList({
   if (events.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed p-6 text-sm text-gray-500">
-        No events found.
+        No events found for the current filters.
       </div>
     );
   }
