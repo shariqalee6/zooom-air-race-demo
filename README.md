@@ -41,6 +41,7 @@ The implementation is intentionally pragmatic:
 - Shared types in `src/lib/types.ts` keep the data model explicit and extendable.
 - Filtering logic lives in a dedicated utility so UI rendering and business logic stay separate.
 - Selection and hover state are managed in one place at the page level because both the list and the map depend on it. This keeps synchronization simple without introducing unnecessary global state.
+- Map interactions (centering on selection, fitting bounds on filter change) are handled by small null-rendering sub-components (`MapController`, `FitBoundsController`) rather than imperative calls inside the main component. This keeps side-effects contained and easy to follow.
 
 ## Project Structure
 
@@ -59,3 +60,8 @@ This solution intentionally stays close to the assignment brief:
 - small and maintainable component boundaries
 
 The goal was to make sensible technical choices without turning the task into a larger architecture exercise.
+
+## What I Would Improve With More Time
+- Add geocoding so the search bar centers the map on a typed city or address
+- Add automated tests for the filtering logic and map/list interaction
+- Extend the data model with a date and status field for sorting and CMS integration

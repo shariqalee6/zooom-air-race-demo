@@ -43,6 +43,8 @@ function createMarkerIcon(
   });
 }
 
+const SELECTION_ZOOM = 5;
+
 function MapController({ selected }: { selected?: EventItem }) {
   const map = useMap();
 
@@ -50,10 +52,8 @@ function MapController({ selected }: { selected?: EventItem }) {
     if (selected) {
       map.setView(
         [selected.coordinates.lat, selected.coordinates.lng],
-        Math.max(map.getZoom(), 4),
-        {
-          animate: true,
-        },
+        SELECTION_ZOOM,
+        { animate: true },
       );
     }
   }, [selected, map]);
@@ -110,6 +110,7 @@ export default function MapView({
   }, [events]);
 
   const selectedEvent = events.find((event) => event.id === selectedId);
+
   return (
     <div className="h-[460px] overflow-hidden rounded-2xl border bg-white shadow-sm">
       <MapContainer
